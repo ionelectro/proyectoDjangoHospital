@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalle Departamento</title>
+</head>
+<body>
+    {% include 'aplicacion/menu.html' %}
+    
+    <h1>Detalle del Departamento</h1>
+    <div class="container">
+        {% if departamento %}
+        <table border="1">
+            <tr>
+                <th>Número</th>
+                <td>{{ departamento.0 }}</td>
+            </tr>
+            <tr>
+                <th>Nombre</th>
+                <td>{{ departamento.1 }}</td>
+            </tr>
+            <tr>
+                <th>Localidad</th>
+                <td>{{ departamento.2 }}</td>
+            </tr>
+        </table>
+        <br>
+        <a href="{% url 'departamentos' %}">Volver a Departamentos</a>
+        {% else %}
+        <p>No se encontró el departamento</p>
+        {% endif %}
+    </div>
+</body>
+</html>

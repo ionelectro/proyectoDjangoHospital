@@ -1,0 +1,38 @@
+{% extends 'aplicacion/base.html' %}
+
+{% block content %}
+    {% include 'aplicacion/menu.html' %}
+    
+    <h2>Hospitales</h2>
+    <div class="container">
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary mb-3">Mostrar Hospitales</button>
+        </form>
+
+        {% if hospitales %}
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Código</th>
+                    <th>Nombre</th>
+                    <th>Dirección</th>
+                    <th>Teléfono</th>
+                    <th>Número de Camas</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for hospital in hospitales %}
+                <tr>
+                    <td>{{ hospital.hospital_cod }}</td>
+                    <td>{{ hospital.nombre }}</td>
+                    <td>{{ hospital.direccion }}</td>
+                    <td>{{ hospital.telefono }}</td>
+                    <td>{{ hospital.num_cama }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+{% endblock %}

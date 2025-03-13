@@ -1,0 +1,36 @@
+{% extends 'aplicacion/base.html' %}
+
+{% block title %}Departamentos{% endblock %}
+
+{% block content %}
+    {% include 'aplicacion/menu.html' %}
+    
+    <h1>Departamentos</h1>
+    <div class="container">
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit">Ver Departamentos</button>
+        </form>
+
+        {% if departamentos %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Número</th>
+                    <th>Nombre</th>
+                    <th>Localidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dept in departamentos %}
+                <tr>
+                    <td>{{ dept.0 }}</td>
+                    <td>{{ dept.1 }}</td>
+                    <td>{{ dept.2 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+{% endblock %}

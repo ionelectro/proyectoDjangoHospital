@@ -1,0 +1,41 @@
+{% extends 'aplicacion/base.html' %}
+
+{% block content %}
+    {% include 'aplicacion/menu.html' %}
+    
+    <h2>Departamentos</h2>
+    <div class="container">
+        <div class="mb-3">
+            <a href="{% url 'insertar_departamento' %}" class="btn btn-success">Nuevo Departamento</a>
+            <form method="post" class="d-inline ms-2">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary">Mostrar Departamentos</button>
+            </form>
+        </div>
+
+        {% if departamentos %}
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Número</th>
+                    <th>Nombre</th>
+                    <th>Localidad</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for dept in departamentos %}
+                <tr>
+                    <td>{{ dept.dept_no }}</td>
+                    <td>{{ dept.dnombre }}</td>
+                    <td>{{ dept.loc }}</td>
+                    <td>
+                        <a href="{% url 'eliminar_departamento' dept.dept_no %}" class="btn btn-danger btn-sm">Eliminar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+{% endblock %}

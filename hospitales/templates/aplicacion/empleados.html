@@ -1,0 +1,46 @@
+{% extends 'aplicacion/base.html' %}
+
+{% block title %}Empleados{% endblock %}
+
+{% block content %}
+    {% include 'aplicacion/menu.html' %}
+    
+    <h1>Empleados</h1>
+    <div class="container">
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit">Ver Empleados</button>
+        </form>
+
+        {% if empleados %}
+        <table>
+            <thead>
+                <tr>
+                    <th>EMPNO</th>
+                    <th>ENAME</th>
+                    <th>JOB</th>
+                    <th>MGR</th>
+                    <th>HIREDATE</th>
+                    <th>SAL</th>
+                    <th>COMM</th>
+                    <th>DEPTNO</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for emp in empleados %}
+                <tr>
+                    <td>{{ emp.0 }}</td>
+                    <td>{{ emp.1 }}</td>
+                    <td>{{ emp.2 }}</td>
+                    <td>{{ emp.3 }}</td>
+                    <td>{{ emp.4 }}</td>
+                    <td>{{ emp.5 }}</td>
+                    <td>{{ emp.6 }}</td>
+                    <td>{{ emp.7 }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+    </div>
+{% endblock %}
