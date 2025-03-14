@@ -3,36 +3,38 @@
 {% block content %}
     {% include 'aplicacion/menu.html' %}
     
-    <h2>Hospitales</h2>
-    <div class="container">
-        <form method="post">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-primary mb-3">Mostrar Hospitales</button>
-        </form>
-
+    <div class="container mt-4">
+        <h2>Hospitales</h2>
+        
         {% if hospitales %}
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Código</th>
-                    <th>Nombre</th>
-                    <th>Dirección</th>
-                    <th>Teléfono</th>
-                    <th>Número de Camas</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for hospital in hospitales %}
-                <tr>
-                    <td>{{ hospital.hospital_cod }}</td>
-                    <td>{{ hospital.nombre }}</td>
-                    <td>{{ hospital.direccion }}</td>
-                    <td>{{ hospital.telefono }}</td>
-                    <td>{{ hospital.num_cama }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-striped table-dark">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Dirección</th>
+                        <th>Teléfono</th>
+                        <th>Número de Camas</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for hospital in hospitales %}
+                    <tr>
+                        <td>{{ hospital.HOSPITAL_COD }}</td>
+                        <td>{{ hospital.NOMBRE }}</td>
+                        <td>{{ hospital.DIRECCION }}</td>
+                        <td>{{ hospital.TELEFONO }}</td>
+                        <td>{{ hospital.NUM_CAMA }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            No hay hospitales para mostrar.
+        </div>
         {% endif %}
     </div>
 {% endblock %}

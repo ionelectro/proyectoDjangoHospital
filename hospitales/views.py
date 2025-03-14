@@ -11,9 +11,34 @@ def index(request):
 
 @login_required
 def empleados(request):
-    empleados_list = []
-    if request.method == 'POST':
-        empleados_list = Emp.objects.raw('SELECT * FROM EMP')
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT COUNT(*) FROM EMP')
+            count = cursor.fetchone()[0]
+            print(f"Number of employees: {count}")  # Debug print
+            
+            cursor.execute('''
+                SELECT 
+                    EMP_NO,
+                    APELLIDO,
+                    OFICIO,
+                    DIR,
+                    FECHA_ALT,
+                    SALARIO,
+                    COMISION,
+                    DEPT_NO
+                FROM EMP
+            ''')
+            rows = cursor.fetchall()
+            print(f"Fetched rows: {rows}")  # Debug print
+            
+            columns = ['EMP_NO', 'APELLIDO', 'OFICIO', 'DIR', 'FECHA_ALT', 'SALARIO', 'COMISION', 'DEPT_NO']
+            empleados_list = [dict(zip(columns, row)) for row in rows]
+            
+    except Exception as e:
+        print(f"Database error: {e}")  # Debug print
+        empleados_list = []
+            
     return render(request, 'aplicacion/empleados.html', {'empleados': empleados_list})
 
 @login_required
@@ -57,10 +82,27 @@ def detalle_departamento(request, dept_no):
 
 @login_required
 def hospitales(request):
-    hospitales_list = []
-    if request.method == 'POST':
-        hospitales_list = Hospital.objects.raw('SELECT * FROM HOSPITAL')
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT HOSPITAL_COD, NOMBRE, DIRECCION, TELEFONO, NUM_CAMA FROM HOSPITAL')
+        columns = ['HOSPITAL_COD', 'NOMBRE', 'DIRECCION', 'TELEFONO', 'NUM_CAMA']
+        hospitales_list = [dict(zip(columns, row)) for row in cursor.fetchall()]
     return render(request, 'aplicacion/hospitales.html', {'hospitales': hospitales_list})
+
+@login_required
+def empleados(request):
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT * FROM EMP')
+        columns = [col[0] for col in cursor.description]
+        empleados_list = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    return render(request, 'aplicacion/empleados.html', {'empleados': empleados_list})
+
+@login_required
+def departamentos(request):
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT DEPT_NO, DNOMBRE, LOC FROM DEPT')
+        columns = ['DEPT_NO', 'DNOMBRE', 'LOC']
+        departamentos_list = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    return render(request, 'aplicacion/departamentos.html', {'departamentos': departamentos_list})
 
 @login_required
 def test_db(request):
@@ -127,3 +169,66 @@ def eliminar_empleado(request, emp_no):
         return render(request, 'aplicacion/eliminar_empleado.html', {'empleado': empleado})
     except IndexError:
         return HttpResponse("Empleado no encontrado", status=404)
+
+
+@login_required
+def editar_departamento(request, dept_no):
+    try:
+        with connection.cursor() as cursor:
+            if request.method == 'POST':
+                dnombre = request.POST.get('dnombre')
+                loc = request.POST.get('loc')
+                cursor.execute('UPDATE DEPT SET DNOMBRE = %s, LOC = %s WHERE DEPT_NO = %s', 
+                             [dnombre, loc, dept_no])
+                return redirect('departamentos')
+            
+            # Get department data for editing
+            cursor.execute('SELECT DEPT_NO, DNOMBRE, LOC FROM DEPT WHERE DEPT_NO = %s', [dept_no])
+            row = cursor.fetchone()
+            if row:
+                departamento = dict(zip(['DEPT_NO', 'DNOMBRE', 'LOC'], row))
+                return render(request, 'aplicacion/editar_departamento.html', {'departamento': departamento})
+            
+        return HttpResponse("Departamento no encontrado", status=404)
+    except Exception as e:
+        return HttpResponse(f"Error: {str(e)}", status=500)
+
+@login_required
+def editar_empleado(request, emp_no):
+    try:
+        with connection.cursor() as cursor:
+            if request.method == 'POST':
+                apellido = request.POST.get('apellido')
+                oficio = request.POST.get('oficio')
+                dir = request.POST.get('dir')
+                fecha_alt = request.POST.get('fecha_alt')
+                salario = request.POST.get('salario')
+                comision = request.POST.get('comision')
+                dept_no = request.POST.get('dept_no')
+                
+                cursor.execute('''
+                    UPDATE EMP 
+                    SET APELLIDO = %s, OFICIO = %s, DIR = %s, 
+                        FECHA_ALT = %s, SALARIO = %s, COMISION = %s, 
+                        DEPT_NO = %s 
+                    WHERE EMP_NO = %s
+                ''', [apellido, oficio, dir, fecha_alt, salario, comision, dept_no, emp_no])
+                return redirect('empleados')
+            
+            # Get employee data for editing
+            cursor.execute('SELECT * FROM EMP WHERE EMP_NO = %s', [emp_no])
+            row = cursor.fetchone()
+            columns = ['EMP_NO', 'APELLIDO', 'OFICIO', 'DIR', 'FECHA_ALT', 'SALARIO', 'COMISION', 'DEPT_NO']
+            empleado = dict(zip(columns, row))
+            
+            # Get departments for dropdown
+            cursor.execute('SELECT DEPT_NO, DNOMBRE FROM DEPT')
+            departamentos = [dict(zip(['DEPT_NO', 'DNOMBRE'], row)) for row in cursor.fetchall()]
+            
+            return render(request, 'aplicacion/editar_empleado.html', {
+                'empleado': empleado,
+                'departamentos': departamentos
+            })
+            
+    except Exception as e:
+        return HttpResponse(f"Error: {str(e)}", status=500)

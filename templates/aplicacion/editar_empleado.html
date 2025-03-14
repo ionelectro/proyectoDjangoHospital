@@ -1,0 +1,52 @@
+{% extends 'aplicacion/base.html' %}
+
+{% block content %}
+    {% include 'aplicacion/menu.html' %}
+    
+    <div class="container mt-4">
+        <h2>Editar Empleado</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="emp_no" class="form-label">Número de Empleado</label>
+                <input type="text" class="form-control" id="emp_no" value="{{ empleado.EMP_NO }}" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="apellido" class="form-label">Apellido</label>
+                <input type="text" class="form-control" id="apellido" name="apellido" value="{{ empleado.APELLIDO }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="oficio" class="form-label">Oficio</label>
+                <input type="text" class="form-control" id="oficio" name="oficio" value="{{ empleado.OFICIO }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="dir" class="form-label">Director</label>
+                <input type="text" class="form-control" id="dir" name="dir" value="{{ empleado.DIR }}">
+            </div>
+            <div class="mb-3">
+                <label for="fecha_alt" class="form-label">Fecha Alta</label>
+                <input type="date" class="form-control" id="fecha_alt" name="fecha_alt" value="{{ empleado.FECHA_ALT|date:'Y-m-d' }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="salario" class="form-label">Salario</label>
+                <input type="number" class="form-control" id="salario" name="salario" value="{{ empleado.SALARIO }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="comision" class="form-label">Comisión</label>
+                <input type="number" class="form-control" id="comision" name="comision" value="{{ empleado.COMISION }}">
+            </div>
+            <div class="mb-3">
+                <label for="dept_no" class="form-label">Departamento</label>
+                <select class="form-control" id="dept_no" name="dept_no" required>
+                    {% for dept in departamentos %}
+                        <option value="{{ dept.DEPT_NO }}" {% if dept.DEPT_NO == empleado.DEPT_NO %}selected{% endif %}>
+                            {{ dept.DNOMBRE }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <a href="{% url 'empleados' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+{% endblock %}

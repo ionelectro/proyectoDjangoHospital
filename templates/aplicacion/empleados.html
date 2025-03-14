@@ -3,49 +3,55 @@
 {% block content %}
     {% include 'aplicacion/menu.html' %}
     
-    <h1>Empleados</h1>
-    <div class="container">
+    <div class="container mt-4">
+        <h2>Empleados</h2>
         <div class="mb-3">
             <a href="{% url 'insertar_empleado' %}" class="btn btn-success">Nuevo Empleado</a>
-            <form method="post" class="d-inline ms-2">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-primary">Ver Empleados</button>
-            </form>
         </div>
 
         {% if empleados %}
-        <table class="table table-striped">
-            <thead>
-                <tr>
-                    <th>Número</th>
-                    <th>Apellido</th>
-                    <th>Oficio</th>
-                    <th>Director</th>
-                    <th>Fecha Alta</th>
-                    <th>Salario</th>
-                    <th>Comisión</th>
-                    <th>Nº Departamento</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for emp in empleados %}
-                <tr>
-                    <td>{{ emp.emp_no }}</td>
-                    <td>{{ emp.apellido }}</td>
-                    <td>{{ emp.oficio }}</td>
-                    <td>{{ emp.dir }}</td>
-                    <td>{{ emp.fecha_alt }}</td>
-                    <td>{{ emp.salario }}</td>
-                    <td>{{ emp.comision }}</td>
-                    <td>{{ emp.dept_no_id }}</td>
-                    <td>
-                        <a href="{% url 'eliminar_empleado' emp.emp_no %}" class="btn btn-danger btn-sm">Eliminar</a>
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-striped table-dark">
+                <thead>
+                    <tr>
+                        <th>Número</th>
+                        <th>Apellido</th>
+                        <th>Oficio</th>
+                        <th>Director</th>
+                        <th>Fecha Alta</th>
+                        <th>Salario</th>
+                        <th>Comisión</th>
+                        <th>Nº Departamento</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in empleados %}
+                    <tr>
+                        <td>{{ emp.EMP_NO }}</td>
+                        <td>{{ emp.APELLIDO }}</td>
+                        <td>{{ emp.OFICIO }}</td>
+                        <td>{{ emp.DIR }}</td>
+                        <td>{{ emp.FECHA_ALT|date:"d/m/Y" }}</td>
+                        <td>{{ emp.SALARIO }}</td>
+                        <td>{{ emp.COMISION }}</td>
+                        <td>{{ emp.DEPT_NO }}</td>
+                        <!-- In the actions column -->
+                        <td>
+                            {% if emp.EMP_NO %}
+                                <a href="{% url 'editar_empleado' emp.EMP_NO %}" class="btn btn-primary btn-sm me-2">Editar</a>
+                                <a href="{% url 'eliminar_empleado' emp.EMP_NO %}" class="btn btn-danger btn-sm">Eliminar</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            No hay empleados para mostrar.
+        </div>
         {% endif %}
     </div>
 {% endblock %}

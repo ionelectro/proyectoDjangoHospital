@@ -1,0 +1,26 @@
+{% extends 'aplicacion/base.html' %}
+
+{% block content %}
+    {% include 'aplicacion/menu.html' %}
+    
+    <div class="container mt-4">
+        <h2>Editar Departamento</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="dept_no" class="form-label">Número de Departamento</label>
+                <input type="text" class="form-control" id="dept_no" value="{{ departamento.DEPT_NO }}" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="dnombre" class="form-label">Nombre</label>
+                <input type="text" class="form-control" id="dnombre" name="dnombre" value="{{ departamento.DNOMBRE }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="loc" class="form-label">Localización</label>
+                <input type="text" class="form-control" id="loc" name="loc" value="{{ departamento.LOC }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            <a href="{% url 'departamentos' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+{% endblock %}
