@@ -190,14 +190,21 @@ def insertar_empleado(request):
 @login_required
 def eliminar_departamento(request, dept_no):
     try:
-        departamento = Dept.objects.raw('SELECT * FROM DEPT WHERE DEPT_NO = %s', [dept_no])[0]
         if request.method == 'POST':
             with connection.cursor() as cursor:
                 cursor.execute('DELETE FROM DEPT WHERE DEPT_NO = %s', [dept_no])
             return redirect('departamentos')
-        return render(request, 'aplicacion/eliminar_departamento.html', {'departamento': departamento})
-    except IndexError:
-        return HttpResponse("Departamento no encontrado", status=404)
+        
+        # Get department info for confirmation
+        with connection.cursor() as cursor:
+            cursor.execute('SELECT DEPT_NO, DNOMBRE FROM DEPT WHERE DEPT_NO = %s', [dept_no])
+            row = cursor.fetchone()
+            if not row:
+                return HttpResponse("Departamento no encontrado", status=404)
+            
+        return render(request, 'aplicacion/departamentos.html', {'departamento': dict(zip(['DEPT_NO', 'DNOMBRE'], row))})
+    except Exception as e:
+        return HttpResponse(f"Error al eliminar: {str(e)}", status=500)
 
 @login_required
 def eliminar_empleado(request, emp_no):

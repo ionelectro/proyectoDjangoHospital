@@ -44,3 +44,23 @@
         {% endif %}
     </div>
 {% endblock %}
+
+<script>
+    function confirmDelete(deptNo, deptName) {
+        if (confirm(`¿Está seguro que desea eliminar el departamento ${deptName}?`)) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = `/eliminar-departamento/${deptNo}/`;
+            
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = csrfToken;
+            
+            form.appendChild(csrfInput);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
