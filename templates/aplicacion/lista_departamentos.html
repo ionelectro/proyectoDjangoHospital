@@ -5,7 +5,13 @@
     {% csrf_token %}
     
     <div class="container mt-4">
-        <h2>Lista de Departamentos</h2>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>Lista de Departamentos</h2>
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#insertModal">
+                Nuevo Departamento
+            </button>
+        </div>
+        
         <div class="row">
             {% for dept in departamentos %}
             <div class="col-md-4 mb-4">
@@ -19,6 +25,7 @@
                         </p>
                         <div class="d-flex gap-2">
                             <a href="{% url 'detalle_departamento' dept.DEPT_NO %}" class="btn btn-primary">Ver Detalles</a>
+                            <button class="btn btn-warning" onclick="editDepartment({{ dept.DEPT_NO }}, '{{ dept.DNOMBRE }}', '{{ dept.LOC }}')" data-bs-toggle="modal" data-bs-target="#editModal">Editar</button>
                             <button onclick="confirmDelete({{ dept.DEPT_NO }}, '{{ dept.DNOMBRE }}')" class="btn btn-danger">Eliminar</button>
                         </div>
                     </div>
@@ -28,45 +35,47 @@
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div class="modal fade" id="deleteModal" tabindex="-1">
+    <!-- Edit Department Modal -->
+    <div class="modal fade" id="editModal" tabindex="-1">
         <div class="modal-dialog">
             <div class="modal-content bg-dark text-white">
                 <div class="modal-header">
-                    <h5 class="modal-title">Confirmar eliminación</h5>
+                    <h5 class="modal-title">Editar Departamento</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    ¿Está seguro que desea eliminar el departamento <span id="deptName"></span>?
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <form id="deleteForm" method="POST" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Eliminar</button>
-                    </form>
-                </div>
+                <form id="editForm" method="POST">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="edit_dept_no" class="form-label">Número de Departamento</label>
+                            <input type="number" class="form-control" id="edit_dept_no" readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_dnombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="edit_dnombre" name="dnombre" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="edit_loc" class="form-label">Localización</label>
+                            <input type="text" class="form-control" id="edit_loc" name="loc" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
+    <!-- Existing modals and delete script -->
+
     <script>
-        function confirmDelete(deptNo, deptName) {
-            if (confirm(`¿Está seguro que desea eliminar el departamento ${deptName}?`)) {
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = `/eliminar-departamento/${deptNo}/`;
-                
-                const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-                const csrfInput = document.createElement('input');
-                csrfInput.type = 'hidden';
-                csrfInput.name = 'csrfmiddlewaretoken';
-                csrfInput.value = csrfToken;
-                
-                form.appendChild(csrfInput);
-                document.body.appendChild(form);
-                form.submit();
-            }
+        function editDepartment(deptNo, deptName, deptLoc) {
+            document.getElementById('edit_dept_no').value = deptNo;
+            document.getElementById('edit_dnombre').value = deptName;
+            document.getElementById('edit_loc').value = deptLoc;
+            document.getElementById('editForm').action = `/editar-departamento/${deptNo}/`;
         }
     </script>
 {% endblock %}
