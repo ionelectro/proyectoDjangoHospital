@@ -69,8 +69,44 @@ def departamentos(request):
 
 @login_required
 def empleados(request):
-    empleados_list = Emp.objects.raw('SELECT * FROM EMP')  # Always show employees
-    return render(request, 'aplicacion/empleados.html', {'empleados': empleados_list})
+    searched_employee = None
+    empleados_list = []
+    emp_no = request.GET.get('emp_no')
+    
+    try:
+        with connection.cursor() as cursor:
+            # If searching for specific employee
+            if emp_no:
+                cursor.execute('''
+                    SELECT e.*, d.DNOMBRE
+                    FROM EMP e
+                    LEFT JOIN DEPT d ON e.DEPT_NO = d.DEPT_NO
+                    WHERE e.EMP_NO = %s
+                ''', [emp_no])
+                row = cursor.fetchone()
+                if row:
+                    columns = ['EMP_NO', 'APELLIDO', 'OFICIO', 'DIR', 'FECHA_ALT', 
+                              'SALARIO', 'COMISION', 'DEPT_NO', 'DNOMBRE']
+                    searched_employee = dict(zip(columns, row))
+            
+            # Get all employees for the table
+            cursor.execute('''
+                SELECT e.*, d.DNOMBRE
+                FROM EMP e
+                LEFT JOIN DEPT d ON e.DEPT_NO = d.DEPT_NO
+                ORDER BY e.APELLIDO
+            ''')
+            columns = ['EMP_NO', 'APELLIDO', 'OFICIO', 'DIR', 'FECHA_ALT', 
+                      'SALARIO', 'COMISION', 'DEPT_NO', 'DNOMBRE']
+            empleados_list = [dict(zip(columns, row)) for row in cursor.fetchall()]
+            
+    except Exception as e:
+        print(f"Database error: {e}")
+            
+    return render(request, 'aplicacion/empleados.html', {
+        'empleados': empleados_list,
+        'searched_employee': searched_employee
+    })
 
 @login_required
 def lista_departamentos(request):
@@ -280,3 +316,27 @@ def editar_empleado(request, emp_no):
             
     except Exception as e:
         return HttpResponse(f"Error: {str(e)}", status=500)
+
+
+@login_required
+def buscar_empleado(request):
+    if request.method == 'GET' and 'emp_no' in request.GET:
+        emp_no = request.GET.get('emp_no')
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute('''
+                    SELECT e.*, d.DNOMBRE
+                    FROM EMP e
+                    LEFT JOIN DEPT d ON e.DEPT_NO = d.DEPT_NO
+                    WHERE e.EMP_NO = %s
+                ''', [emp_no])
+                row = cursor.fetchone()
+                if row:
+                    columns = ['EMP_NO', 'APELLIDO', 'OFICIO', 'DIR', 'FECHA_ALT', 
+                              'SALARIO', 'COMISION', 'DEPT_NO', 'DNOMBRE']
+                    empleado = dict(zip(columns, row))
+                    return render(request, 'aplicacion/detalle_empleado.html', {'empleado': empleado})
+                return HttpResponse("Empleado no encontrado", status=404)
+        except Exception as e:
+            return HttpResponse(f"Error: {str(e)}", status=500)
+    return redirect('empleados')

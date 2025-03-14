@@ -1,0 +1,32 @@
+{% extends 'aplicacion/base.html' %}
+
+{% block content %}
+    {% include 'aplicacion/menu.html' %}
+    
+    <div class="container mt-4">
+        <div class="card bg-dark text-white">
+            <div class="card-header">
+                <h2>Detalles del Empleado</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Número:</strong> {{ empleado.EMP_NO }}</p>
+                        <p><strong>Apellido:</strong> {{ empleado.APELLIDO }}</p>
+                        <p><strong>Oficio:</strong> {{ empleado.OFICIO }}</p>
+                        <p><strong>Director:</strong> {{ empleado.DIR }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Fecha Alta:</strong> {{ empleado.FECHA_ALT|date:"d/m/Y" }}</p>
+                        <p><strong>Salario:</strong> ${{ empleado.SALARIO }}</p>
+                        <p><strong>Comisión:</strong> ${{ empleado.COMISION|default:'-' }}</p>
+                        <p><strong>Departamento:</strong> {{ empleado.DNOMBRE }}</p>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="{% url 'empleados' %}" class="btn btn-secondary">Volver a Empleados</a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

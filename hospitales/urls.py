@@ -14,4 +14,5 @@ urlpatterns = [
     path('editar-empleado/<int:emp_no>/', views.editar_empleado, name='editar_empleado'),
     path('lista-departamentos/', views.lista_departamentos, name='lista_departamentos'),
     path('detalle-departamento/<int:dept_no>/', views.detalle_departamento, name='detalle_departamento'),
+    path('buscar-empleado/', views.buscar_empleado, name='buscar_empleado'),
 ]
