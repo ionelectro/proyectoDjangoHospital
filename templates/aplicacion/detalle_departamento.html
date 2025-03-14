@@ -1,0 +1,54 @@
+{% extends 'aplicacion/base.html' %}
+
+{% block content %}
+    {% include 'aplicacion/menu.html' %}
+    
+    <div class="container mt-4">
+        <div class="card bg-dark text-white mb-4">
+            <div class="card-header bg-secondary">
+                <h2>{{ departamento.DNOMBRE }}</h2>
+            </div>
+            <div class="card-body">
+                <h5 class="text-light">Información del Departamento</h5>
+                <p><strong>Número:</strong> {{ departamento.DEPT_NO }}</p>
+                <p><strong>Localización:</strong> {{ departamento.LOC }}</p>
+                <p><strong>Número de Empleados:</strong> {{ departamento.NUM_EMPLEADOS }}</p>
+                <p><strong>Total Salarios:</strong> ${{ departamento.TOTAL_SALARIOS }}</p>
+            </div>
+        </div>
+
+        {% if empleados %}
+        <h3 class="text-white bg-dark p-3 rounded">Empleados del Departamento</h3>
+        <div class="table-responsive">
+            <table class="table table-dark table-striped">
+                <thead>
+                    <tr>
+                        <th>Apellido</th>
+                        <th>Oficio</th>
+                        <th>Fecha Alta</th>
+                        <th>Salario</th>
+                        <th>Comisión</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for emp in empleados %}
+                    <tr>
+                        <td>{{ emp.APELLIDO }}</td>
+                        <td>{{ emp.OFICIO }}</td>
+                        <td>{{ emp.FECHA_ALT|date:"d/m/Y" }}</td>
+                        <td>${{ emp.SALARIO }}</td>
+                        <td>${{ emp.COMISION|default:'-' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="alert alert-dark">
+            No hay empleados en este departamento.
+        </div>
+        {% endif %}
+        
+        <a href="{% url 'lista_departamentos' %}" class="btn btn-secondary mt-3">Volver a la Lista</a>
+    </div>
+{% endblock %}

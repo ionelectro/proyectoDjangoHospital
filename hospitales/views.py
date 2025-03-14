@@ -73,12 +73,53 @@ def empleados(request):
     return render(request, 'aplicacion/empleados.html', {'empleados': empleados_list})
 
 @login_required
+def lista_departamentos(request):
+    with connection.cursor() as cursor:
+        cursor.execute('''
+            SELECT d.DEPT_NO, d.DNOMBRE, d.LOC,
+                   COUNT(e.EMP_NO) as num_empleados,
+                   NVL(SUM(e.SALARIO), 0) as total_salarios
+            FROM DEPT d
+            LEFT JOIN EMP e ON d.DEPT_NO = e.DEPT_NO
+            GROUP BY d.DEPT_NO, d.DNOMBRE, d.LOC
+            ORDER BY d.DEPT_NO
+        ''')
+        columns = ['DEPT_NO', 'DNOMBRE', 'LOC', 'NUM_EMPLEADOS', 'TOTAL_SALARIOS']
+        departamentos = [dict(zip(columns, row)) for row in cursor.fetchall()]
+    return render(request, 'aplicacion/lista_departamentos.html', {'departamentos': departamentos})
+
+@login_required
 def detalle_departamento(request, dept_no):
-    try:
-        departamento = Dept.objects.get(deptno=dept_no)
-    except Dept.DoesNotExist:
+    with connection.cursor() as cursor:
+        # Get department info
+        cursor.execute('''
+            SELECT d.DEPT_NO, d.DNOMBRE, d.LOC,
+                   COUNT(e.EMP_NO) as num_empleados,
+                   NVL(SUM(e.SALARIO), 0) as total_salarios
+            FROM DEPT d
+            LEFT JOIN EMP e ON d.DEPT_NO = e.DEPT_NO
+            WHERE d.DEPT_NO = %s
+            GROUP BY d.DEPT_NO, d.DNOMBRE, d.LOC
+        ''', [dept_no])
+        dept_data = cursor.fetchone()
+        
+        # Get employees in department
+        cursor.execute('''
+            SELECT EMP_NO, APELLIDO, OFICIO, FECHA_ALT, SALARIO, COMISION
+            FROM EMP
+            WHERE DEPT_NO = %s
+            ORDER BY APELLIDO
+        ''', [dept_no])
+        empleados = [dict(zip(['EMP_NO', 'APELLIDO', 'OFICIO', 'FECHA_ALT', 'SALARIO', 'COMISION'], row)) 
+                    for row in cursor.fetchall()]
+        
+        if dept_data:
+            departamento = dict(zip(['DEPT_NO', 'DNOMBRE', 'LOC', 'NUM_EMPLEADOS', 'TOTAL_SALARIOS'], dept_data))
+            return render(request, 'aplicacion/detalle_departamento.html', {
+                'departamento': departamento,
+                'empleados': empleados
+            })
         return HttpResponse("Departamento no encontrado", status=404)
-    return render(request, 'aplicacion/detalle_departamento.html', {'departamento': departamento})
 
 @login_required
 def hospitales(request):

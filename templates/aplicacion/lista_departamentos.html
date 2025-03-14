@@ -1,0 +1,26 @@
+{% extends 'aplicacion/base.html' %}
+
+{% block content %}
+    {% include 'aplicacion/menu.html' %}
+    
+    <div class="container mt-4">
+        <h2>Lista de Departamentos</h2>
+        <div class="row">
+            {% for dept in departamentos %}
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ dept.DNOMBRE }}</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">{{ dept.LOC }}</h6>
+                        <p class="card-text">
+                            Empleados: {{ dept.NUM_EMPLEADOS }}<br>
+                            Total Salarios: ${{ dept.TOTAL_SALARIOS }}
+                        </p>
+                        <a href="{% url 'detalle_departamento' dept.DEPT_NO %}" class="btn btn-primary">Ver Detalles</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
