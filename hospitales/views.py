@@ -72,30 +72,31 @@ def empleados(request):
     searched_employee = None
     empleados_list = []
     emp_no = request.GET.get('emp_no')
+    dept_no = request.GET.get('dept_no')
     
     try:
         with connection.cursor() as cursor:
-            # If searching for specific employee
-            if emp_no:
+            # Get departments for the filter dropdown
+            cursor.execute('SELECT DEPT_NO, DNOMBRE FROM DEPT ORDER BY DNOMBRE')
+            departamentos = [dict(zip(['DEPT_NO', 'DNOMBRE'], row)) for row in cursor.fetchall()]
+            
+            # If searching by department
+            if dept_no:
                 cursor.execute('''
                     SELECT e.*, d.DNOMBRE
                     FROM EMP e
                     LEFT JOIN DEPT d ON e.DEPT_NO = d.DEPT_NO
-                    WHERE e.EMP_NO = %s
-                ''', [emp_no])
-                row = cursor.fetchone()
-                if row:
-                    columns = ['EMP_NO', 'APELLIDO', 'OFICIO', 'DIR', 'FECHA_ALT', 
-                              'SALARIO', 'COMISION', 'DEPT_NO', 'DNOMBRE']
-                    searched_employee = dict(zip(columns, row))
+                    WHERE e.DEPT_NO = %s
+                    ORDER BY e.APELLIDO
+                ''', [dept_no])
+            else:
+                cursor.execute('''
+                    SELECT e.*, d.DNOMBRE
+                    FROM EMP e
+                    LEFT JOIN DEPT d ON e.DEPT_NO = d.DEPT_NO
+                    ORDER BY e.APELLIDO
+                ''')
             
-            # Get all employees for the table
-            cursor.execute('''
-                SELECT e.*, d.DNOMBRE
-                FROM EMP e
-                LEFT JOIN DEPT d ON e.DEPT_NO = d.DEPT_NO
-                ORDER BY e.APELLIDO
-            ''')
             columns = ['EMP_NO', 'APELLIDO', 'OFICIO', 'DIR', 'FECHA_ALT', 
                       'SALARIO', 'COMISION', 'DEPT_NO', 'DNOMBRE']
             empleados_list = [dict(zip(columns, row)) for row in cursor.fetchall()]
@@ -105,7 +106,8 @@ def empleados(request):
             
     return render(request, 'aplicacion/empleados.html', {
         'empleados': empleados_list,
-        'searched_employee': searched_employee
+        'departamentos': departamentos,
+        'dept_no_selected': dept_no
     })
 
 @login_required
@@ -167,11 +169,38 @@ def hospitales(request):
 
 @login_required
 def empleados(request):
-    with connection.cursor() as cursor:
-        cursor.execute('SELECT * FROM EMP')
-        columns = [col[0] for col in cursor.description]
-        empleados_list = [dict(zip(columns, row)) for row in cursor.fetchall()]
-    return render(request, 'aplicacion/empleados.html', {'empleados': empleados_list})
+    empleados_list = []
+    dept_nombre = request.GET.get('dept_nombre')
+    
+    try:
+        with connection.cursor() as cursor:
+            if dept_nombre:
+                cursor.execute('''
+                    SELECT e.*, d.DNOMBRE
+                    FROM EMP e
+                    LEFT JOIN DEPT d ON e.DEPT_NO = d.DEPT_NO
+                    WHERE UPPER(d.DNOMBRE) LIKE UPPER(%s)
+                    ORDER BY e.APELLIDO
+                ''', [f'%{dept_nombre}%'])
+            else:
+                cursor.execute('''
+                    SELECT e.*, d.DNOMBRE
+                    FROM EMP e
+                    LEFT JOIN DEPT d ON e.DEPT_NO = d.DEPT_NO
+                    ORDER BY e.APELLIDO
+                ''')
+            
+            columns = ['EMP_NO', 'APELLIDO', 'OFICIO', 'DIR', 'FECHA_ALT', 
+                      'SALARIO', 'COMISION', 'DEPT_NO', 'DNOMBRE']
+            empleados_list = [dict(zip(columns, row)) for row in cursor.fetchall()]
+            
+    except Exception as e:
+        print(f"Database error: {e}")
+            
+    return render(request, 'aplicacion/empleados.html', {
+        'empleados': empleados_list,
+        'dept_nombre_selected': dept_nombre
+    })
 
 @login_required
 def departamentos(request):
